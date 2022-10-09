@@ -288,8 +288,8 @@ static void update_state(UIState *s) {
     }
   }
   if (sm.updated("gpsLocationExternal")) {
-    scene.gpsAccuracy = sm["gpsLocationExternal"].getGpsLocationExternal().getAccuracy();
     auto ge_data = sm["gpsLocationExternal"].getGpsLocationExternal();
+    scene.gpsAccuracy = ge_data.getAccuracy();
     scene.gpsAccuracyUblox = ge_data.getAccuracy();
     scene.altitudeUblox = ge_data.getAltitude();
     scene.bearingUblox = ge_data.getBearingDeg();
@@ -350,6 +350,7 @@ static void update_state(UIState *s) {
     scene.liveENaviData.eopkrsafetysign = lme_data.getSafetySign();
     scene.liveENaviData.eopkrturninfo = lme_data.getTurnInfo();
     scene.liveENaviData.eopkrdisttoturn = lme_data.getDistanceToTurn();
+    scene.liveENaviData.eopkrconalive = lme_data.getConnectionAlive();
   }
   if (sm.updated("liveMapData")) {
     scene.live_map_data = sm["liveMapData"].getLiveMapData();
@@ -488,6 +489,15 @@ static void update_status(UIState *s) {
     } else if (s->sm->frame - s->scene.started_frame > 20*UI_FREQ) {
       s->scene.auto_gitpull = true;
       system("/data/openpilot/selfdrive/assets/addon/script/gitcommit.sh &");
+    }
+  }
+
+  if (!s->scene.run_ext_navi && (s->sm->frame - s->scene.started_frame > 25*UI_FREQ)) {
+    if (s->scene.navi_select == 3) {
+      s->scene.run_ext_navi = true;
+      system("/data/openpilot/selfdrive/assets/addon/script/find_ip.sh &");
+    } else if (s->sm->frame - s->scene.started_frame > 30*UI_FREQ) {
+      s->scene.run_ext_navi = true;
     }
   }
 

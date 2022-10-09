@@ -175,6 +175,11 @@ class NaviControl():
     #if not mapValid or trafficType == 0:
     #  return  cruise_set_speed_kph
 
+    #test cruise_set_speed_kph set to 30 when stopline & stop sign
+    # if 0 < self.sm['longitudinalPlan'].e2eX[12] < 100 and self.sm['longitudinalPlan'].stopLine[12] < 100 :
+    #   cruise_set_speed_kph = 30
+    #   return cruise_set_speed_kph
+
     if not self.speedlimit_decel_off:
       if self.osm_speedlimit_enabled and not self.sm['controlsState'].osmOffSpdLimit:  # osm speedlimit
         if self.sm['liveMapData'].speedLimit > 21 or self.sm['liveMapData'].speedLimitAhead > 21:
@@ -232,21 +237,19 @@ class NaviControl():
               self.onSpeedControl = True
             else:
               self.onSpeedControl = False
-      # elif self.decel_on_speedbump and CS.map_enabled and ((self.liveNaviData.safetySign == 107 and self.navi_sel == 0) or (self.liveNaviData.safetySignCam == 124 and self.navi_sel == 1)): # Hoya
-      #   cruise_set_speed_kph = interp(v_ego_kph, [35, 40, 60, 80, 100], [30, 35, 45, 60, 80])
-      #   self.onSpeedBumpControl = True
-      # elif CS.map_enabled and self.liveNaviData.speedLimit > 19 and self.liveNaviData.safetySignCam not in (4, 7, 16):  # navi app speedlimit
       elif self.decel_on_speedbump and (CS.map_enabled or self.navi_sel == 3) and ((self.liveNaviData.safetySign == 107 and self.navi_sel == 0) \
        or (self.liveNaviData.safetySignCam == 124 and self.navi_sel == 1) or (self.liveNaviData.safetySign == 22 and self.navi_sel == 3)):
-        sb_consider_speed = interp((v_ego_kph - (20 if CS.is_set_speed_in_mph else 30)), [0, 50], [1., 2.])
+        sb_consider_speed = interp((v_ego_kph - (20 if CS.is_set_speed_in_mph else 30)), [0, 25, 50], [1., 1.65, 2.])
         sb_final_decel_start_dist = sb_consider_speed*v_ego_kph
         if self.liveNaviData.safetyDistance < sb_final_decel_start_dist and self.navi_sel == 3: # TMap can use safetyDistance
           cruise_set_speed_kph == 20 if CS.is_set_speed_in_mph else 30
           self.onSpeedBumpControl = True
-        elif self.navi_sel in (0,1): # iNavi & Mappy 
+        elif self.navi_sel in (0,1):
           # cruise_set_speed_kph == 20 if CS.is_set_speed_in_mph else 30
-          cruise_set_speed_kph = interp(v_ego_kph, [35, 40, 60, 80, 100], [30, 35, 45, 60, 80]) # Hoya
+          cruise_set_speed_kph = interp(v_ego_kph, [35, 40, 60, 80], [30, 35, 45, 60]) # Hoya
           self.onSpeedBumpControl = True
+        else:
+          self.onSpeedBumpControl = False
       elif (CS.map_enabled or self.navi_sel == 3) and self.liveNaviData.speedLimit > 21 and self.liveNaviData.safetySignCam not in (4, 7, 16):  # navi app speedlimit
         self.onSpeedBumpControl = False
         self.map_speed_dist = max(0, self.liveNaviData.safetyDistance - 30)
