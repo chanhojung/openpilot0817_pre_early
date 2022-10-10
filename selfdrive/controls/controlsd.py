@@ -688,7 +688,9 @@ class Controls:
       torque_params = self.sm['liveTorqueParameters']
       if self.sm.all_checks(['liveTorqueParameters']) and torque_params.useParams:
         self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered, torque_params.frictionCoefficientFiltered)
-
+        str_log1 = 'LV={:.0f} LAF={:.2f} LAO={:.3f} FC={:.3f}'.format( torque_params.liveValid, torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered, torque_params.frictionCoefficientFiltered )
+        trace1.printf1( '{}'.format( str_log1 ) )   
+        
     actuators = car.CarControl.Actuators.new_message()
     actuators.longControlState = self.LoC.long_control_state
 
