@@ -65,7 +65,7 @@ def set_lat_tune(tune, name, max_lat_accel=2.5, TorqueFriction=.01, steering_ang
     tune.atom.torque.kf = TorqueKf / max_lat_accel        # 1.0 / 2.5 = 0.4
     tune.atom.torque.ki = TorqueKi / max_lat_accel        # 0.5 / 2.5 = 0.2
     tune.atom.torque.friction = TorqueFriction
-    tune.atom.torque.latAccelFactor = 0
+    tune.atom.torque.latAccelFactor = 3.0
     tune.atom.torque.latAccelOffset = 0.0    
     tune.atom.torque.steeringAngleDeadzoneDeg = steer_ang_deadzone
 
@@ -126,7 +126,7 @@ def set_lat_tune(tune, name, max_lat_accel=2.5, TorqueFriction=.01, steering_ang
     tune.torque.kf = TorqueKf / max_lat_accel # 1.0/2.5 = 0.4
     tune.torque.ki = TorqueKi / max_lat_accel # 0.5/2.5 = 0.2
     tune.torque.friction = TorqueFriction
-    tune.torque.latAccelFactor = 0
+    tune.torque.latAccelFactor = 3.0
     tune.torque.latAccelOffset = 0.0     
     tune.torque.steeringAngleDeadzoneDeg = steer_ang_deadzone
   elif name == LatTunes.LQR:
