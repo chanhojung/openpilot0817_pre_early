@@ -84,7 +84,7 @@ class Controls:
       ignore = ['driverCameraState', 'managerState'] if SIMULATION else None
       self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                      'driverMonitoringState', 'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
-                                     'managerState', 'liveParameters', 'radarState', 'liveNaviData', 'liveENaviData', 'liveMapData', 'liveTorqueParameters'] + self.camera_packets + joystick_packet,
+                                     'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters', 'liveNaviData', 'liveENaviData', 'liveMapData'] + self.camera_packets + joystick_packet,
                                      ignore_alive=ignore, ignore_avg_freq=['radarState', 'longitudinalPlan'])
 
     self.can_sock = can_sock
@@ -649,12 +649,6 @@ class Controls:
 
   def state_control(self, CS):
     """Given the state, this function returns a CarControl packet"""
-    # Update Torque Params
-    if self.CP.lateralTuning.which() == 'torque':
-      torque_params = self.sm['liveTorqueParameters']
-      if self.sm.all_checks(['liveTorqueParameters']) and torque_params.useParams:
-        self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered, torque_params.frictionCoefficientFiltered)
-
     lat_plan = self.sm['lateralPlan']
     long_plan = self.sm['longitudinalPlan']
 
@@ -688,6 +682,12 @@ class Controls:
     self.VM.update_params(x, sr)
 
     self.steerRatio_to_send = sr
+
+    # Update Torque Params
+    if self.CP.lateralTuning.which() == 'torque':
+      torque_params = self.sm['liveTorqueParameters']
+      if self.sm.all_checks(['liveTorqueParameters']) and torque_params.useParams:
+        self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered, torque_params.frictionCoefficientFiltered)
 
     actuators = car.CarControl.Actuators.new_message()
     actuators.longControlState = self.LoC.long_control_state
