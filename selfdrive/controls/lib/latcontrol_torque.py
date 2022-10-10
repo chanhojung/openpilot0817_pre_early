@@ -58,10 +58,11 @@ class LatControlTorque(LatControl):
         
       self.mpc_frame = 0
 
-  def update_live_torque_params(self, latAccelFactor, latAccelOffset, friction):
+  def update_live_torque_params(self, latAccelFactor, latAccelOffset, friction, totalBucketPoints):
     self.torque_params.latAccelFactor = latAccelFactor
     self.torque_params.latAccelOffset = latAccelOffset
     self.torque_params.friction = friction
+    self.torque_params.totalBucketPoints = totalBucketPoints
 
   def update(self, active, CS, CP, VM, params, last_actuators, steer_limited, desired_curvature, desired_curvature_rate, llk):
     self.lt_timer += 1
