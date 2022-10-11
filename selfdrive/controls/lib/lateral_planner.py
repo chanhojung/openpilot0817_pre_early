@@ -139,14 +139,12 @@ class LateralPlanner:
     elif self.laneless_mode == 1: # Laneless Mode(1)
       d_path_xyz = self.path_xyz
       self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
-                              LATERAL_ACCEL_COST, LATERAL_JERK_COST)
                               LATERAL_ACCEL_COST, LATERAL_JERK_COST,
                               STEERING_RATE_COST)
       self.laneless_mode_status = True
     elif self.laneless_mode == 2 and ((self.LP.lll_prob + self.LP.rll_prob)/2 < 0.2) and self.DH.lane_change_state == LaneChangeState.off:
       d_path_xyz = self.path_xyz
       self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
-                              LATERAL_ACCEL_COST, LATERAL_JERK_COST)
                               LATERAL_ACCEL_COST, LATERAL_JERK_COST,
                               STEERING_RATE_COST)
       self.laneless_mode_status = True
@@ -160,7 +158,6 @@ class LateralPlanner:
     elif self.laneless_mode == 2 and self.laneless_mode_status_buffer == True and self.DH.lane_change_state == LaneChangeState.off:
       d_path_xyz = self.path_xyz
       self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
-                              LATERAL_ACCEL_COST, LATERAL_JERK_COST)
                               LATERAL_ACCEL_COST, LATERAL_JERK_COST,
                               STEERING_RATE_COST)
       self.laneless_mode_status = True
@@ -172,7 +169,6 @@ class LateralPlanner:
 
     # d_path_xyz = self.path_xyz
     # self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
-    #                          LATERAL_ACCEL_COST, LATERAL_JERK_COST)
     #                          LATERAL_ACCEL_COST, LATERAL_JERK_COST,
     #                          STEERING_RATE_COST)
 
