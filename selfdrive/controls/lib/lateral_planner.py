@@ -23,6 +23,11 @@ STEER_RATE = 1.0
 LATERAL_MOTION_COST = 0.11
 LATERAL_ACCEL_COST = 0.0
 LATERAL_JERK_COST = 0.05
+# Extreme steering rate is unpleasant, even
+# when it does not cause bad jerk.
+# TODO this cost should be lowered when low
+# speed lateral control is stable on all cars
+STEERING_RATE_COST = 800.0
 
 MIN_SPEED = .3
 
@@ -133,13 +138,17 @@ class LateralPlanner:
       self.laneless_mode_status = False
     elif self.laneless_mode == 1: # Laneless Mode(1)
       d_path_xyz = self.path_xyz
-      # Heading cost is useful at low speed, otherwise end of plan can be off-heading
-      self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,LATERAL_ACCEL_COST, LATERAL_JERK_COST)
+      self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
+                              LATERAL_ACCEL_COST, LATERAL_JERK_COST)
+                              LATERAL_ACCEL_COST, LATERAL_JERK_COST,
+                              STEERING_RATE_COST)
       self.laneless_mode_status = True
     elif self.laneless_mode == 2 and ((self.LP.lll_prob + self.LP.rll_prob)/2 < 0.2) and self.DH.lane_change_state == LaneChangeState.off:
       d_path_xyz = self.path_xyz
-      # Heading cost is useful at low speed, otherwise end of plan can be off-heading
-      self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,LATERAL_ACCEL_COST, LATERAL_JERK_COST)
+      self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
+                              LATERAL_ACCEL_COST, LATERAL_JERK_COST)
+                              LATERAL_ACCEL_COST, LATERAL_JERK_COST,
+                              STEERING_RATE_COST)
       self.laneless_mode_status = True
       self.laneless_mode_status_buffer = True
     elif self.laneless_mode == 2 and ((self.LP.lll_prob + self.LP.rll_prob)/2 > 0.5) and \
@@ -150,8 +159,10 @@ class LateralPlanner:
       self.laneless_mode_status_buffer = False
     elif self.laneless_mode == 2 and self.laneless_mode_status_buffer == True and self.DH.lane_change_state == LaneChangeState.off:
       d_path_xyz = self.path_xyz
-      # Heading cost is useful at low speed, otherwise end of plan can be off-heading
-      self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,LATERAL_ACCEL_COST, LATERAL_JERK_COST)
+      self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
+                              LATERAL_ACCEL_COST, LATERAL_JERK_COST)
+                              LATERAL_ACCEL_COST, LATERAL_JERK_COST,
+                              STEERING_RATE_COST)
       self.laneless_mode_status = True
     else:
       d_path_xyz = self.LP.get_d_path(self.v_ego, self.t_idxs, self.path_xyz)
@@ -162,6 +173,8 @@ class LateralPlanner:
     # d_path_xyz = self.path_xyz
     # self.lat_mpc.set_weights(PATH_COST, LATERAL_MOTION_COST,
     #                          LATERAL_ACCEL_COST, LATERAL_JERK_COST)
+    #                          LATERAL_ACCEL_COST, LATERAL_JERK_COST,
+    #                          STEERING_RATE_COST)
 
     y_pts = np.interp(self.v_ego * self.t_idxs[:LAT_MPC_N + 1], np.linalg.norm(d_path_xyz, axis=1), d_path_xyz[:, 1])
     heading_pts = np.interp(self.v_ego * self.t_idxs[:LAT_MPC_N + 1], np.linalg.norm(self.path_xyz, axis=1), self.plan_yaw)
